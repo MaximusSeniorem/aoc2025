@@ -58,7 +58,6 @@ impl Dial{
 
 fn handle_input(input : &str, _state : &mut State) -> Result<(), Err>{
   let d = Dial::new(input)?;
-  //println!("{:#?}", d);
 
   let mut passed = d.quo;  
   let old_pos = _state.pos;
@@ -66,9 +65,7 @@ fn handle_input(input : &str, _state : &mut State) -> Result<(), Err>{
     Op::L => _state.pos -= d.rem,
     Op::R => _state.pos += d.rem,
   }
-  //let mut passed =  _state.pos.abs() as u32 / DIAL_MOD;
-  
-   
+
   _state.pos %= DIAL_MOD as i16;
   if _state.pos == 0 { _state.res += 1; }
   if _state.pos * old_pos < 0 && _state.pos != 0 { passed += 1; }
