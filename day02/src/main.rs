@@ -1,36 +1,35 @@
-use std::str::Fromstr;
+use std::str::FromStr;
+use std::string::ParseError;
 
-enum Err{
-  ParseError,
-}
-
+#[derive(Debug)]
 struct Range {
-  first : u32,
-  last : u32,
+  first: u32,
+  last: u32,
 }
 
 impl Range {
-  fn new (input : &str) -> Self {
-    let i: Result<[u32; 2], std::num::ParseIntError> = input.split('-').map(|s| s.parse::<u32>()).collect();
-    match (i)
-    {
-      Ok([s, e]) => Self {
-        first : s, 
-        last : e,
-      },
-      Err(e) =>  panic!("{e}")
-    }
+  fn new (s: &str) -> Result<Self, ParseError> {
+    s.parse()
   } 
 }
 
-impl Fromstr for Range{
-  fn from_str(s: &str) -> Result<Self, Err> {
-    //todo
+impl FromStr for Range{
+  type Err = ParseError;  
+  
+  fn from_str(s: &str) -> Result<Self, Self::Err> { 
+    match s.split_once('-'){
+      Some((f, l)) => Ok(Self{
+        first : f.parse()?, 
+        last : l.parse()?,
+      }),
+      None => Err("err"),
+    }
   }
 }
 
 fn handle_input(input : &str, inv_ids : &mut Vec<u32>){
-
+    let r: Range = input.parse()?;
+    println!("{:?}", r);
 }
 
 fn main() {
