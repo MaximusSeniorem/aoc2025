@@ -19,11 +19,11 @@ struct Range {
   last: u32,
 }
 
-// impl Range {
-//   fn new (s: &str) -> Result<Self, Err> {
-//     s.parse()
-//   } 
-// }
+impl Range {
+  fn new (s: &str) -> Result<Self, Err> {
+    s.parse()
+  } 
+}
 
 impl FromStr for Range{
       type Err = crate::Err;  
@@ -37,7 +37,7 @@ impl FromStr for Range{
 }
 
 fn handle_input(input : &str, inv_ids : &mut Vec<u32>) -> Result<(), Err>{
-    let r: Range = input.parse()?;
+    let r = Range::new(input)?;
     println!("{:?}", r);
     Ok(())
 }
