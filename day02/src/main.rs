@@ -1,8 +1,9 @@
+use std::ops::{ RangeInclusive };
 use std::num::ParseIntError;
 use std::str::FromStr;
 
 #[derive(Debug)]
-enum Err{
+enum Err {
   ParseIntError(ParseIntError),
   ParseError,
 }
@@ -14,32 +15,44 @@ impl From<ParseIntError> for Err {
 }
 
 #[derive(Debug)]
-struct Range {
-  first: u32,
-  last: u32,
+struct RangeIds {
+  first: String,
+  last: String,
+  range : RangeInclusive<u32>,
 }
 
-impl Range {
+impl RangeIds {
   fn new (s: &str) -> Result<Self, Err> {
     s.parse()
   } 
 }
 
-impl FromStr for Range{
+impl FromStr for RangeIds {
       type Err = crate::Err;  
   
   fn from_str(s: &str) -> Result<Self, Self::Err> {  
     match s.split_once('-'){
-      Some((f, l)) => Ok(Self{first:f.parse::<u32>()?, last:l.parse::<u32>()?}),
+      Some((f, l)) => Ok(
+        Self{
+          first: f.to_string(), 
+          last: l.to_string(),
+          range: RangeInclusive::new(f.parse::<u32>()?, l.parse::<u32>()?)
+        }),
       None => Err(Err::ParseError),
     } 
   }
 }
 
-fn handle_input(input : &str, inv_ids : &mut Vec<u32>) -> Result<(), Err>{
-    let r = Range::new(input)?;
-    println!("{:?}", r);
-    Ok(())
+fn handle_input(input : &str, inv_ids : &mut Vec<u32>) -> Result<(), Err> {
+  let r = RangeIds::new(input)?;
+  //println!("{:?}, contains? : {}, {}", r, r.range.contains(&r.range.start()), r.range.contains(&r.range.end()));
+
+  let len_diff = r.last.len() - r.first.len();
+  if len_diff == 0 && (r.first.len() % 2) != 0 { return Ok(()); }
+  
+
+  
+  Ok(())
 }
 
 fn main() {
