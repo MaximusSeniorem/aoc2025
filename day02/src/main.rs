@@ -1,6 +1,10 @@
 use std::str::FromStr;
 use std::string::ParseError;
 
+enum Err{
+  ParseError,
+}
+
 #[derive(Debug)]
 struct Range {
   first: u32,
@@ -14,21 +18,18 @@ impl Range {
 }
 
 impl FromStr for Range{
-  type Err = ParseError;  
+      type Err = std::string::ParseError;  
   
-  fn from_str(s: &str) -> Result<Self, Self::Err> { 
-    match s.split_once('-'){
-      Some((f, l)) => Ok(Self{
-        first : f.parse()?, 
-        last : l.parse()?,
-      }),
-      None => Err("err"),
-    }
+  fn from_str(s: &str) -> Result<Self, Self::Err> {  
+    match (s.split_once('-')){
+      Some((f, l)) => Ok(Self{first:f.parse::<u32>()?, last:l.parse::<u32>()?}),
+      None => Err(Err::ParseError),
+    } 
   }
 }
 
 fn handle_input(input : &str, inv_ids : &mut Vec<u32>){
-    let r: Range = input.parse()?;
+    let r: Range = input.parse().unwrap();
     println!("{:?}", r);
 }
 
