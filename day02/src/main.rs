@@ -48,9 +48,26 @@ fn handle_input(input : &str, inv_ids : &mut Vec<u32>) -> Result<(), Err> {
   //println!("{:?}, contains? : {}, {}", r, r.range.contains(&r.range.start()), r.range.contains(&r.range.end()));
 
   let len_diff = r.last.len() - r.first.len();
-  if len_diff == 0 && (r.first.len() % 2) != 0 { return Ok(()); }
-  
+  if len_diff == 0 && (r.first.len() % 2) != 0 { 
+    println!("[{:?}] does not contains bad ids", r.range);
+    return Ok(()); 
+  }
+  else {
+    print!("[{:?}], ", r.range);
 
+  }
+
+  let isStartPair = r.first.len() % 2 == 0;
+  let mut n = if isStartPair { r.first.len() } else { r.first.len() + 1 } / 2; 
+  let mut cur10pow = u32::pow(10, n as u32);
+  let start = if isStartPair { r.first[0..n].parse()? } else { cur10pow };
+  let mut start = start * cur10pow + start;
+
+  while !r.range.contains(&start) && start <= *r.range.end(){
+    start += cur10pow + 1;
+  }
+
+  println!("start cond = {}, {}", n, start);
   
   Ok(())
 }
