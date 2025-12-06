@@ -1,32 +1,38 @@
 
-fn find_biggest_jolt(s: String) -> u32{
-    let mut max: u8 = 0;
-    let mut next: u8 = 0;
+fn find_biggest_jolt(s: String) -> u64{
+    //init
+    const JOLT_SZ: usize = 12;
+    let mut jolt: [u8; JOLT_SZ] = [b'0'; JOLT_SZ];
     
     for (i, c) in s.as_bytes().into_iter().enumerate(){
-        //checking if it is the new max only if not the last character 
-        if *c > max && i < s.len() - 1 {
-            max = *c;
-            next = 0;
-        }
-        else if *c > next { next = *c; }
+        //check remaiming characters
+        let remains = s.len() - i;
+        let start = if remains < JOLT_SZ { JOLT_SZ - remains } else { 0 };
 
+        for j in start..JOLT_SZ {
+            if *c > jolt[j] {
+                jolt[j] = *c;
+                let _ = &jolt[j+1..].fill(b'0');
+                break;
+            }
+        }
     }
 
-    let res = (max - b'0') * 10 + next - b'0';
+    let res : u64 = String::from_utf8(jolt.to_vec()).unwrap()
+        .parse().unwrap();
     //println!("{} -> {}", s, res);
-    res.into()
+    res
 }
 
 
 fn main() {
     //find the biggest joltage, ie 98, 89, 78, 92 with TEST_INPUT
     //and add them together
-    let jolts: Vec<u32> = _REAL_INPUT.split(',')
+    let jolts: Vec<u64> = _REAL_INPUT.split(',')
         .map(|s| find_biggest_jolt(s.to_string()))
         .collect();
 
-    println!("{}", jolts.into_iter().map(|x| x as u32).sum::<u32>());    
+    println!("{}", jolts.into_iter().sum::<u64>());    
 }
 
 
