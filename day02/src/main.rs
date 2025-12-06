@@ -76,7 +76,10 @@ struct BadIdGenerator{
 
 impl BadIdGenerator{
     
-  fn new (start: u64, end: u64) -> Self{ 
+  fn new (start: u64, end: u64) -> Self{
+    //handle limit case with bad lower bound but valid upper bound
+    let start = if start < 10 && end > 10 { 10 } else { start }; 
+    
     let start_sz = start.ilog(10) as u8 + 1;
     let mut sz_divs = divs(start_sz);
     let pattern_len = sz_divs.pop().unwrap();
@@ -112,6 +115,7 @@ impl BadIdGenerator{
     
     if self.pattern == self.limit - 1 {
       *self = BadIdGenerator::new(self.get_bad_id() + 1, self.end);
+      // println!("    {:?}", self);
     }
     else{ self.pattern += 1; }
     
@@ -155,6 +159,9 @@ impl BadIdGenerator{
       self.pattern = pattern;
       self.builder = builder;
       self.limit = limit;
+
+
+      // println!("    {:?}", self);
   }
   
 
@@ -163,10 +170,6 @@ impl BadIdGenerator{
 
 fn handle_input(input : &str, acc: &mut u64) -> Result<(), Err<ParseIntError>> {
   let RangeIds(r): RangeIds<u64> = input.parse()?;
-  if *r.start() < 10 { 
-    println!("{} contains no invalid ids", input);
-    return Ok(()); 
-  }
   
   let mut g = BadIdGenerator::new(*r.start(), *r.end());
 
