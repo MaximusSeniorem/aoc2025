@@ -9,10 +9,10 @@ mod private {
 
     impl fmt::Display for Rollmap {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "({}, {})", self.height, self.width)?;
+            // write!(f, "({}, {})", self.height, self.width)?;
             for (i, c) in self.map.iter().enumerate() {
-                if i % self.width == 0 {
-                    write!(f, "\n{}", *c)?;
+                if i % self.width == self.width - 1 {
+                    writeln!(f, "{}", *c)?;
                 } else {
                     write!(f, "{}", *c)?;
                 }
@@ -46,16 +46,16 @@ mod private {
             //  -1   0  +1
             //  w-1  w  w+1
             let mut mat: Vec<i32> = vec![];
-             
+
             if row != 0 { 
                 if col != 0 { mat.push(-w - 1); } //top left
                 if col != w - 1 { mat.push(-w + 1); } //bottom left
                 mat.push(-w);
             }
-            
+
             if col != 0 { mat.push(-1); }
             if col != w - 1 { mat.push(1); }
-            
+
             if row != h - 1 {
                 if col != 0 { mat.push(w - 1); } //top right
                 if col != w - 1 { mat.push(w + 1); } //bottom right
@@ -71,24 +71,25 @@ mod private {
             res
         }
 
-        pub fn mark_accessible_rolls(&mut self) -> (&mut Self, usize) {
+        pub fn get_accessible_rolls(&mut self) -> usize {
             let mut nb_acc = 0;
             let mut map = self.map.clone();
             for (i, c) in map.iter_mut().enumerate() {
+                if *c == 'x' { *c = '.'; }
                 if *c != '@' {
                     continue;
                 }
                 let neighbours: Vec<char> = self.get_roll_neighbours(i);
-                
-                let neighbours = neighbours.into_iter().filter(|&c| c != '.').collect::<Vec<char>>();
-                
+
+                let neighbours = neighbours.into_iter().filter(|&c| c == '@').collect::<Vec<char>>();
+
                 if neighbours.len() < 4 { 
                     *c = 'x';
                     nb_acc += 1;
                 }
             }
             self.map = map;
-            (self, nb_acc)
+            nb_acc
         }
     }
 }
@@ -97,13 +98,21 @@ use private::Rollmap;
 
 fn main() {
     let mut map = Rollmap::new(_REAL_INPUT);
-    println!("{}", map);
+    println!("Initial State:");
+    //println!("{}", map);
 
-    let (_, nb_acc) = map.mark_accessible_rolls();
-    println!("{}", map);
+    let mut tot_rem = 0;
+    let mut rem = map.get_accessible_rolls();
+    while rem != 0 {
+        tot_rem += rem;
 
-    println!("{}", nb_acc);
-    
+        println!("Removed {} roll(s):", rem);
+       // println!("{}", map);
+        rem = map.get_accessible_rolls();
+    }
+
+    println!("Removed {} roll(s) total:", tot_rem);
+
 }
 
 const _TEST_INPUT: &str = 
