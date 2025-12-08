@@ -1,83 +1,110 @@
-
-mod private{
+mod private {
     use std::fmt;
-    
-    pub struct Rollmap{
+
+    pub struct Rollmap {
         height: usize,
-        width : usize,
-        map   : Vec<char>,
+        width: usize,
+        map: Vec<char>,
     }
 
-    impl fmt::Display for Rollmap{
+    impl fmt::Display for Rollmap {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(f, "({}, {})", self.height, self.width)?;
             for (i, c) in self.map.iter().enumerate() {
                 if i % self.width == 0 {
                     write!(f, "\n{}", *c)?;
+                } else {
+                    write!(f, "{}", *c)?;
                 }
-                else { write!(f, "{}", *c)?; } 
             }
             Ok(())
         }
     }
 
-    impl Rollmap{
-        pub fn new(str: &str) -> Self{
+    impl Rollmap {
+        pub fn new(str: &str) -> Self {
             let rows = str.split('\n').collect::<Vec<&str>>();
-
-                //.map(|s| s.chars().collect::<Vec<char>>)
-                //.collect();
-            
             let h = rows.len();
             let w = if h != 0 { rows[0].len() } else { 0 };
             let map: Vec<char> = rows.iter().flat_map(|s| s.chars()).collect();
 
-            Self{
-                map    : map,
-                height : h,
-                width  : w
-            }
-        }
-    /*
-        fn clone(&self) -> Self { 
-            Self{
-                map   : self.map.clone(),
-                width : self.width.clone(),
-                height: self.height.clone()
+            Self {
+                map: map,
+                height: h,
+                width: w,
             }
         }
 
-        fn height(&self) -> usize { self.height }
-        fn width(&self)  -> usize { self.width } 
-    */
-
-        fn get_roll_neighbours(i: u32) -> Vec<char>{
+        fn get_roll_neighbours(&self, idx: usize) -> Vec<char> {
+            let w = self.width as i32;
+            let h = self.height as i32;
+            let row = (idx / self.width) as i32;
+            let col = (idx % self.width) as i32;
             let mut res: Vec<char> = vec![];
+
+            // -w-1 -w -w+1
+            //  -1   0  +1
+            //  w-1  w  w+1
+            let mut mat: Vec<i32> = vec![];
+             
+            if row != 0 { 
+                if col != 0 { mat.push(-w - 1); } //top left
+                if col != w - 1 { mat.push(-w + 1); } //bottom left
+                mat.push(-w);
+            }
+            
+            if col != 0 { mat.push(-1); }
+            if col != w - 1 { mat.push(1); }
+            
+            if row != h - 1 {
+                if col != 0 { mat.push(w - 1); } //top right
+                if col != w - 1 { mat.push(w + 1); } //bottom right
+                mat.push(w);
+            }
+
+            //println!("{}, {}, {}, {:?}", idx, row, col, mat);
+            for i in mat {
+                let n_idx = idx as i32 + i;
+                res.push(self.map[n_idx as usize])
+            }
+
             res
         }
 
-
-        pub fn mark_accessible_rolls(&mut self) -> &mut Self {
-            for (i, c) in self.map.iter().enumerate() {
-                if *c != '@' { continue; }
+        pub fn mark_accessible_rolls(&mut self) -> (&mut Self, usize) {
+            let mut nb_acc = 0;
+            let mut map = self.map.clone();
+            for (i, c) in map.iter_mut().enumerate() {
+                if *c != '@' {
+                    continue;
+                }
+                let neighbours: Vec<char> = self.get_roll_neighbours(i);
                 
+                let neighbours = neighbours.into_iter().filter(|&c| c != '.').collect::<Vec<char>>();
+                
+                if neighbours.len() < 4 { 
+                    *c = 'x';
+                    nb_acc += 1;
+                }
             }
-            self
+            self.map = map;
+            (self, nb_acc)
         }
     }
-
 }
 
 use private::Rollmap;
 
 fn main() {
-    let map = Rollmap::new(_TEST_INPUT);
+    let mut map = Rollmap::new(_REAL_INPUT);
     println!("{}", map);
+
+    let (_, nb_acc) = map.mark_accessible_rolls();
+    println!("{}", map);
+
+    println!("{}", nb_acc);
+    
 }
-
-
-
-
 
 const _TEST_INPUT: &str = 
 "..@@.@@@@.
