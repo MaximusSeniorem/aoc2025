@@ -61,7 +61,7 @@ mod private {
                 if col != w - 1 { mat.push(w + 1); } //bottom right
                 mat.push(w);
             }
-
+            //debug much
             //println!("{}, {}, {}, {:?}", idx, row, col, mat);
             for i in mat {
                 let n_idx = idx as i32 + i;
@@ -97,7 +97,7 @@ mod private {
 use private::Rollmap;
 
 fn main() {
-    let mut map = Rollmap::new(_REAL_INPUT);
+    let mut map = Rollmap::new(_TEST_INPUT);
     println!("Initial State:");
     //println!("{}", map);
 
