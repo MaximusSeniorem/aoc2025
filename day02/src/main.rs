@@ -27,7 +27,6 @@ impl<E: fmt::Display> fmt::Display for Err<E> {
 
 impl<E: std::error::Error + 'static> std::error::Error for Err<E> {}
 
-
 #[derive(Debug)]
 struct RangeIds<T>(pub RangeInclusive<T>);
 
